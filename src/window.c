@@ -87,7 +87,7 @@ void tt_window_swap(void)
         SDL_GL_SwapWindow(tt_window);
 }
 
-GLuint tt_window_free(void)
+void tt_window_free(void)
 {
         SDL_DestroyWindow(tt_window);
         SDL_GL_DeleteContext(tt_context);

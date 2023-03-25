@@ -90,6 +90,8 @@ extern GLuint tt_texture_create(tt_texture_info_t tinfo);
 #define TT_WINDOW_HEIGHT (200)
 #define TT_WINDOW_FLAGS (SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN)
 
+extern float tt_model[16], tt_projection[16], tt_view[16];
+
 typedef enum TT_WINDOW_ENUM {
         TT_WINDOW_NO_ERROR = 0,
         TT_WINDOW_SDL_ERROR,
@@ -126,5 +128,91 @@ typedef enum TT_COLOUR_MASK {
 } TT_COLOUR_MASK;
 
 extern GLfloat tt_colour_mask(GLuint colour, TT_COLOUR_MASK mask, GLboolean normalized);
+
+/* linear */
+typedef struct {
+        float x, y;
+} tt_vec2_t;
+
+typedef struct {
+        float x, y, z;
+} tt_vec3_t;
+
+typedef struct {
+        float x, y, z, w;
+} tt_vec4_t;
+
+extern tt_vec2_t tt_vec2_create(float x, float y);
+extern float  tt_vec2_length(tt_vec2_t vec);
+extern tt_vec2_t tt_vec2_add(tt_vec2_t first, tt_vec2_t second);
+extern tt_vec2_t tt_vec2_sub(tt_vec2_t first, tt_vec2_t second);
+extern tt_vec2_t tt_vec2_mul(tt_vec2_t first, tt_vec2_t second);
+extern tt_vec2_t tt_vec2_div(tt_vec2_t first, tt_vec2_t second);
+extern float  tt_vec2_dot(tt_vec2_t first, tt_vec2_t second);
+extern float  tt_vec2_cross(tt_vec2_t first, tt_vec2_t second);
+extern tt_vec2_t tt_vec2_normalise(tt_vec2_t vec);
+
+extern tt_vec3_t tt_vec3_create(float x, float y, float z);
+extern float  tt_vec3_length(tt_vec3_t vec);
+extern tt_vec3_t tt_vec3_add(tt_vec3_t first, tt_vec3_t second);
+extern tt_vec3_t tt_vec3_sub(tt_vec3_t first, tt_vec3_t second);
+extern tt_vec3_t tt_vec3_mul(tt_vec3_t first, tt_vec3_t second);
+extern tt_vec3_t tt_vec3_div(tt_vec3_t first, tt_vec3_t second);
+extern float  tt_vec3_dot(tt_vec3_t first, tt_vec3_t second);
+extern tt_vec3_t tt_vec3_cross(tt_vec3_t first, tt_vec3_t second);
+extern tt_vec3_t tt_vec3_normalise(tt_vec3_t vec);
+
+extern tt_vec4_t tt_vec4_create(float x, float y, float z, float w);
+extern float  tt_vec4_length(tt_vec4_t vec);
+extern tt_vec4_t tt_vec4_add(tt_vec4_t first, tt_vec4_t second);
+extern tt_vec4_t tt_vec4_sub(tt_vec4_t first, tt_vec4_t second);
+extern tt_vec4_t tt_vec4_mul(tt_vec4_t first, tt_vec4_t second);
+extern tt_vec4_t tt_vec4_div(tt_vec4_t first, tt_vec4_t second);
+extern float  tt_vec4_dot(tt_vec4_t first, tt_vec4_t second);
+extern tt_vec4_t tt_vec4_normalise(tt_vec4_t vec);
+
+extern int  tt_matrix_multiply(float l[16], float r[16]);
+extern void tt_matrix_copy(float to[16], float from[16]);
+extern int  tt_matrix_identity(float m[16]);
+extern int  tt_matrix_translate3f(float m[16], float dx, float dy, float dz);
+extern int  tt_matrix_translate3fv(float m[16], tt_vec3_t vec);
+extern int  tt_matrix_scale3f(float m[16], float w, float h, float d);
+extern int  tt_matrix_scale3fv(float m[16], tt_vec3_t vec);
+extern int  tt_matrix_rotate3f(float m[16], float x, float y, float z, float angle);
+extern int  tt_matrix_rotate3fv(float m[16], tt_vec3_t, float angle);
+extern int  tt_matrix_orthographic(float m[16], float t, float r, float b, float l, float n, float f);
+
+/* rect */
+#define TT_RECT_VERTEX_LOC 0
+#define TT_RECT_TEXVERTEX_LOC 1
+
+typedef enum TT_RECT_ENUM {
+        TT_RECT_NO_ERROR = 0,
+        TT_RECT_NULL_ERROR,
+        TT_RECT_PROGRAM_ERROR,
+        TT_RECT_TEXTURE_ERROR,
+        TT_RECT_ENUM_COUNT
+} TT_RECT_ENUM;
+
+typedef struct tt_rect_t {
+        GLuint vbo, ebo, vao, program, texture, colour;
+        GLfloat x, y, w, h;
+} tt_rect_t;
+
+extern int tt_rect_init(tt_rect_t *rect, GLfloat x, GLfloat y, GLfloat w, GLfloat h,
+                            GLuint program, GLuint texture, GLuint colour);
+extern void tt_rect_clip4f(tt_rect_t *rect, GLfloat x,
+                             GLfloat y, GLfloat w, GLfloat h);
+extern void tt_rect_clip4fv(tt_rect_t *rect, tt_vec4_t clip_rect);
+extern void tt_rect_set_x(tt_rect_t *rect, GLfloat x);
+extern void tt_rect_set_y(tt_rect_t *rect, GLfloat y);
+extern void tt_rect_set_width(tt_rect_t *rect, GLfloat w);
+extern void tt_rect_set_height(tt_rect_t *rect, GLfloat h);
+extern GLfloat tt_rect_get_x(tt_rect_t *rect);
+extern GLfloat tt_rect_get_y(tt_rect_t *rect);
+extern GLfloat tt_rect_get_width(tt_rect_t *rect);
+extern GLfloat tt_rect_get_height(tt_rect_t *rect);
+extern void tt_rect_render(tt_rect_t *rect);
+extern void tt_rect_free(tt_rect_t *rect);
 
 #endif // TT_H_

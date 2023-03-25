@@ -116,4 +116,15 @@ extern void tt_window_free(void);
 extern size_t tt_utils_fsize(FILE *fd);
 extern char *tt_utils_fmap(const char *path);
 
+/* colour */
+typedef enum TT_COLOUR_MASK {
+        TT_COLOUR_R = 0,
+        TT_COLOUR_G,
+        TT_COLOUR_B,
+        TT_COLOUR_A,
+        TT_COLOUR_MASK_COUNT
+} TT_COLOUR_MASK;
+
+extern GLfloat tt_colour_mask(GLuint colour, TT_COLOUR_MASK mask, GLboolean normalized);
+
 #endif // TT_H_

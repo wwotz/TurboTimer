@@ -5,6 +5,8 @@ static SDL_GLContext *tt_context = NULL;
 static SDL_Event tt_event = {0};
 static GLboolean tt_running = GL_FALSE;
 
+float tt_model[16], tt_projection[16], tt_view[16];
+
 TT_WINDOW_ENUM tt_window_init(const char *name, GLuint x, GLuint y,
                       GLuint w, GLuint h, GLuint flags)
 {
@@ -42,6 +44,12 @@ TT_WINDOW_ENUM tt_window_init(const char *name, GLuint x, GLuint y,
                 TT_PUSH_ERROR("Failed to initialise glew!");
                 return TT_WINDOW_GLEW_ERROR;
         }
+
+        tt_matrix_identity(tt_model);
+        tt_matrix_identity(tt_view);
+        tt_matrix_orthographic(tt_projection, 0.0, w, h, 0.0, 10.0, -10.0);
+
+        glClearColor(0.0, 0.0, 0.0, 1.0);
 
         SDL_SetWindowAlwaysOnTop(tt_window, SDL_TRUE);
         tt_running = GL_TRUE;

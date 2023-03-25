@@ -54,7 +54,8 @@ typedef enum TT_SHADER_TYPE {
 } TT_SHADER_TYPE;
 
 typedef struct tt_shader_info_t {
-        TT_SHADER_TYPE type;
+        TT_SHADER_TYPE dtype;
+        GLenum stype;
         const char *data;
 } tt_shader_info_t;
 
@@ -109,6 +110,10 @@ extern void tt_window_events(void);
 extern void tt_window_clear_buffers(GLbitfield buffers);
 extern void tt_window_clear_colour(GLuint colour);
 extern void tt_window_swap(void);
-extern GLuint tt_window_free(void);
+extern void tt_window_free(void);
+
+/* utils */
+extern size_t tt_utils_fsize(FILE *fd);
+extern char *tt_utils_fmap(const char *path);
 
 #endif // TT_H_

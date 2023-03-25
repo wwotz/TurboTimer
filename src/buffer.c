@@ -95,6 +95,7 @@ int tt_buffer_clear(tt_buffer_t *buffer)
 
         memset(buffer->data, 0, buffer->capacity * sizeof(*buffer->data));
         buffer->size = 0;
+        return TT_BUFFER_NO_ERROR;
 }
 
 char tt_buffer_get_char(tt_buffer_t *buffer, int index)

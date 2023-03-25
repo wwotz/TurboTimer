@@ -24,6 +24,10 @@ char *tt_utils_fmap(const char *path)
 
         buffer_len = tt_utils_fsize(fd);
         buffer = malloc(buffer_len + 1);
+        if (!buffer) {
+                TT_PUSH_ERROR("Failed to allocate memory for file!");
+                return NULL;
+        }
 
         size_t nread;
         while ((nread = fread(buffer, sizeof(*buffer), buffer_len, fd)) > 0)

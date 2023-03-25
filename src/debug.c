@@ -34,6 +34,7 @@ int tt_debug_stack_push(const char *msg, int line,
         snprintf(tt_debug_stack[tt_debug_stack_ptr], TT_DEBUG_MSG_LENGTH,
                    "Error @ Line %d in %s: %s", line, file, msg);
         tt_debug_stack_ptr = (tt_debug_stack_ptr + 1) % TT_DEBUG_STACK_CAPACITY;
+        return 0;
 }
 
 char *tt_debug_stack_pop(void)

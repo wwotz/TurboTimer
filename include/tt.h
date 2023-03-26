@@ -40,10 +40,13 @@ typedef enum {
 extern tt_buffer_t *tt_buffer_create(const char *data);
 extern int tt_buffer_init(tt_buffer_t *buffer, const char *data);
 extern int tt_buffer_resize(tt_buffer_t *buffer);
+extern int tt_buffer_append(tt_buffer_t *buffer, char c);
+extern size_t tt_buffer_length(tt_buffer_t *buffer);
 extern int tt_buffer_write(tt_buffer_t *buffer, const char *data);
 extern int tt_buffer_insert(tt_buffer_t *buffer, const char *data, int offset);
 extern int tt_buffer_clear(tt_buffer_t *buffer);
-extern char tt_buffer_get_char(tt_buffer_t *buffer, int index);
+extern char tt_buffer_get_charat(tt_buffer_t *buffer, int index);
+extern void tt_buffer_set_charat(tt_buffer_t *buffer, int index, char c);
 extern void tt_buffer_free(tt_buffer_t *buffer);
 
 /* shader */
@@ -69,8 +72,8 @@ extern GLuint tt_program_create(tt_program_info_t pinfo);
 
 /* texture */
 typedef enum TT_TEXTURE_TYPE {
-        TT_TEXTURE_FILE_TYPE = 0,
-        TT_TEXTURE_PIXEL_TYPE,
+        TT_TEXTURE_FILE = 0,
+        TT_TEXTURE_PIXELS,
         TT_TEXTURE_TYPE_COUNT
 } TT_TEXTURE_TYPE;
 
@@ -111,6 +114,9 @@ extern int tt_window_event_type(void);
 extern void tt_window_events(void);
 extern void tt_window_clear_buffers(GLbitfield buffers);
 extern void tt_window_clear_colour(GLuint colour);
+extern int tt_window_get_width(void);
+extern int tt_window_get_height(void);
+extern void tt_window_get_size(int *w, int *h);
 extern void tt_window_swap(void);
 extern void tt_window_free(void);
 
@@ -214,5 +220,81 @@ extern GLfloat tt_rect_get_width(tt_rect_t *rect);
 extern GLfloat tt_rect_get_height(tt_rect_t *rect);
 extern void tt_rect_render(tt_rect_t *rect);
 extern void tt_rect_free(tt_rect_t *rect);
+
+/* text */
+#define TT_METRICTABLE_SIZE 16
+
+typedef enum TT_GLYPH_ENUM {
+        TT_GLYPH_NO_ERROR = 0,
+        TT_GLYPH_NULL_ERROR,
+        TT_GLYPH_FONT_ERROR,
+        TT_GLYPH_TEXT_ERROR,
+        TT_GLYPH_TEXTURE_ERROR,
+        TT_GLYPH_ENUM_COUNT
+} TT_GLYPH_ENUM;
+
+typedef enum TT_METRIC_ENUM {
+        TT_METRIC_NO_ERROR = 0,
+        TT_METRIC_NULL_ERROR,
+        TT_METRIC_ENUM_COUNT
+} TT_METRIC_ENUM;
+
+typedef struct tt_metric_t {
+        char key;
+        int minx, maxx, miny, maxy, advance, offset;
+        struct tt_metric_t *next;
+} tt_metric_t;
+
+typedef struct tt_glyph_t {
+        GLuint texture;
+        GLuint tw, th;
+        GLuint w, h;
+        TTF_Font *font;
+        tt_metric_t *table[TT_METRICTABLE_SIZE];
+} tt_glyph_t;
+
+typedef enum {
+        TT_TEXT_NO_ERROR = 0,
+        TT_TEXT_NULL_ERROR,
+        TT_TEXT_PROGRAM_ERROR,
+        TT_TEXT_ENUM_COUNT
+} TT_TEXT_ENUM;
+
+typedef struct tt_text_t {
+        tt_buffer_t buffer;
+        tt_rect_t rect;
+} tt_text_t;
+
+extern tt_metric_t *tt_metric_create(char key, int minx, int maxx,
+                                         int miny, int maxy, int advance, int offset);
+extern int tt_metric_init(tt_metric_t *metric, char key, int minx, int maxx,
+                            int miny, int maxy, int advance, int offset);
+extern tt_metric_t *tt_metric_insert(tt_metric_t *metric, char key, int minx, int maxx,
+                                         int miny, int maxy, int advance, int offset);
+extern tt_metric_t *tt_metric_lookup(tt_metric_t *metric, char key);
+extern void           tt_metric_free(tt_metric_t *metric);
+extern int            tt_glyph_init(tt_glyph_t *glyph, const char *path,
+                                      const char *sample, GLuint ptsize);
+extern void           tt_glyph_free(tt_glyph_t *glyph);
+
+extern tt_text_t *tt_text_create(const char *data, tt_glyph_t *glyph, GLuint program,
+                                     GLfloat x, GLfloat y, GLuint colour);
+extern int tt_text_init(tt_text_t *text,  const char *data, tt_glyph_t *glyph,
+                          GLuint program, GLfloat x, GLfloat y, GLuint colour);
+extern int            tt_text_resize(tt_text_t *text);
+extern int            tt_text_append(tt_text_t *text, char c);
+extern int            tt_text_write(tt_text_t *text, const char *data);
+extern int            tt_text_clear(tt_text_t *text);
+extern GLfloat        tt_text_get_height(tt_text_t *text, tt_glyph_t *glyph);
+extern GLfloat        tt_text_get_width(tt_text_t *text, tt_glyph_t *glyph);
+extern GLfloat        tt_text_get_x(tt_text_t *text);
+extern GLfloat        tt_text_get_y(tt_text_t *text);
+extern size_t         tt_text_get_length(tt_text_t *text);
+extern char           tt_text_get_charat(tt_text_t *text, int index);
+extern void           tt_text_set_charat(tt_text_t *text, int index, char c);
+extern void           tt_text_set_x(tt_text_t *text, GLfloat x);
+extern void           tt_text_set_y(tt_text_t *text, GLfloat y);
+extern void           tt_text_render(tt_text_t *text, tt_glyph_t *glyph);
+extern void           tt_text_free(tt_text_t *text);
 
 #endif // TT_H_

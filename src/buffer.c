@@ -37,6 +37,44 @@ int tt_buffer_init(tt_buffer_t *buffer, const char *data)
         return tt_buffer_write(buffer, data);
 }
 
+int tt_buffer_append(tt_buffer_t *buffer, char c)
+{
+        if (!buffer) {
+                TT_PUSH_ERROR("buffer was null!");
+                return TT_BUFFER_NULL_ERROR;
+        }
+
+        if (buffer->capacity <= buffer->size + 1) {
+                int status;
+                if ((status = tt_buffer_resize(buffer)) != TT_BUFFER_NO_ERROR)
+                        return status;
+        }
+
+        buffer->data[buffer->size++] = c;
+        buffer->data[buffer->size] = '\0';
+        return TT_BUFFER_NO_ERROR;
+}
+
+size_t tt_buffer_length(tt_buffer_t *buffer)
+{
+        if (buffer)
+                return buffer->size;
+        return 0;
+}
+
+char tt_buffer_get_charat(tt_buffer_t *buffer, int index)
+{
+        if (buffer && index < tt_buffer_length(buffer) && index >= 0)
+                return buffer->data[index];
+        return '\0';
+}
+
+void tt_buffer_set_charat(tt_buffer_t *buffer, int index, char c)
+{
+        if (buffer && index < tt_buffer_length(buffer) && index >= 0)
+                buffer->data[index] = c;
+}
+
 int tt_buffer_resize(tt_buffer_t *buffer)
 {
         char *new_data;
@@ -96,13 +134,6 @@ int tt_buffer_clear(tt_buffer_t *buffer)
         memset(buffer->data, 0, buffer->capacity * sizeof(*buffer->data));
         buffer->size = 0;
         return TT_BUFFER_NO_ERROR;
-}
-
-char tt_buffer_get_char(tt_buffer_t *buffer, int index)
-{
-        if (index < buffer->size && index >= 0)
-                return buffer->data[index];
-        return '\0';
 }
 
 void tt_buffer_free(tt_buffer_t *buffer)

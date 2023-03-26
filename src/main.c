@@ -20,6 +20,12 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
 
+        tt_program_info_t rect_pinfo = {
+                { TT_SHADER_FILE_TYPE, GL_VERTEX_SHADER, "../shaders/rect.vert" },
+                { TT_SHADER_FILE_TYPE, GL_FRAGMENT_SHADER, "../shaders/rect.frag" }
+        };
+        GLuint rect_program = tt_program_create(rect_pinfo);
+
         tt_program_info_t icon_pinfo = {
                 { TT_SHADER_FILE_TYPE, GL_VERTEX_SHADER, "../shaders/icon.vert" },
                 { TT_SHADER_FILE_TYPE, GL_FRAGMENT_SHADER, "../shaders/icon.frag" }
@@ -79,8 +85,16 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
 
+        tt_rect_t border_rect;
+        tt_rect_init(&border_rect, 0.0, 0.0, 64.0, 64.0,
+                     rect_program, 0, 0xaaaaaaff);
+        if (tt_debug_had_error()) {
+                fprintf(stderr, "%s\n", tt_debug_stack_pop());
+                exit(EXIT_FAILURE);
+        }
+
         tt_rect_t play_rect;
-        tt_rect_init(&play_rect, 0.0, 0.0, 64.0, 64.0,
+        tt_rect_init(&play_rect, (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
                             icon_program, play_icon, 0x00ff00ff);
         if (tt_debug_had_error()) {
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
@@ -88,16 +102,17 @@ int main(int argc, char **argv)
         }
 
         tt_rect_t stop_rect;
-        tt_rect_init(&stop_rect, 64.0, 0.0, 64.0, 64.0,
+        tt_rect_init(&stop_rect, 64.0 + (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
                      icon_program, stop_icon, 0xff0000ff);
         if (tt_debug_had_error()) {
+
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
                 exit(EXIT_FAILURE);
         }
 
         tt_rect_t replay_rect;
-        tt_rect_init(&replay_rect, 128.0, 0.0, 64.0, 64.0,
-                     icon_program, replay_icon, 0xffffffff);
+        tt_rect_init(&replay_rect, 128.0 + (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
+                     icon_program, replay_icon, 0x000000ff);
         if (tt_debug_had_error()) {
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
                 exit(EXIT_FAILURE);
@@ -106,13 +121,25 @@ int main(int argc, char **argv)
         while (tt_window_is_running()) {
                 while (tt_window_poll_event()) {
                         tt_window_events();
+                        switch (tt_window_event_type()) {
+                                case SDL_MOUSEMOTION:
+                        }
                 }
                 tt_window_clear_buffers(GL_COLOR_BUFFER_BIT);
                 tt_text_render(&text, &text_glyph);
                 tt_text_set_x(&text, (tt_window_get_width()-tt_text_get_width(&text, &text_glyph))/2.0);
-                tt_text_set_y(&text, (tt_window_get_height()-tt_text_get_height(&text, &text_glyph))/2.0);
+                tt_text_set_y(&text, 10.0);
+                tt_rect_set_x(&border_rect, tt_rect_get_x(&play_rect));
+                tt_rect_set_y(&border_rect, tt_rect_get_y(&play_rect));
+                tt_rect_render(&border_rect);
                 tt_rect_render(&play_rect);
+                tt_rect_set_x(&border_rect, tt_rect_get_x(&stop_rect));
+                tt_rect_set_y(&border_rect, tt_rect_get_y(&stop_rect));
+                tt_rect_render(&border_rect);
                 tt_rect_render(&stop_rect);
+                tt_rect_set_x(&border_rect, tt_rect_get_x(&replay_rect));
+                tt_rect_set_y(&border_rect, tt_rect_get_y(&replay_rect));
+                tt_rect_render(&border_rect);
                 tt_rect_render(&replay_rect);
                 tt_window_swap();
         }

@@ -8,6 +8,8 @@
 #include <GL/glew.h>
 #include <SDL2/SDL_opengl.h>
 
+#include <sys/time.h>
+
 /* debug */
 #define TT_DEBUG_ENABLED 1
 #define TT_DEBUG_MSG_LENGTH 128
@@ -272,29 +274,34 @@ extern int tt_metric_init(tt_metric_t *metric, char key, int minx, int maxx,
 extern tt_metric_t *tt_metric_insert(tt_metric_t *metric, char key, int minx, int maxx,
                                          int miny, int maxy, int advance, int offset);
 extern tt_metric_t *tt_metric_lookup(tt_metric_t *metric, char key);
-extern void           tt_metric_free(tt_metric_t *metric);
-extern int            tt_glyph_init(tt_glyph_t *glyph, const char *path,
+extern void tt_metric_free(tt_metric_t *metric);
+extern int tt_glyph_init(tt_glyph_t *glyph, const char *path,
                                       const char *sample, GLuint ptsize);
-extern void           tt_glyph_free(tt_glyph_t *glyph);
+extern void tt_glyph_free(tt_glyph_t *glyph);
 
 extern tt_text_t *tt_text_create(const char *data, tt_glyph_t *glyph, GLuint program,
                                      GLfloat x, GLfloat y, GLuint colour);
 extern int tt_text_init(tt_text_t *text,  const char *data, tt_glyph_t *glyph,
                           GLuint program, GLfloat x, GLfloat y, GLuint colour);
-extern int            tt_text_resize(tt_text_t *text);
-extern int            tt_text_append(tt_text_t *text, char c);
-extern int            tt_text_write(tt_text_t *text, const char *data);
-extern int            tt_text_clear(tt_text_t *text);
-extern GLfloat        tt_text_get_height(tt_text_t *text, tt_glyph_t *glyph);
-extern GLfloat        tt_text_get_width(tt_text_t *text, tt_glyph_t *glyph);
-extern GLfloat        tt_text_get_x(tt_text_t *text);
-extern GLfloat        tt_text_get_y(tt_text_t *text);
-extern size_t         tt_text_get_length(tt_text_t *text);
-extern char           tt_text_get_charat(tt_text_t *text, int index);
-extern void           tt_text_set_charat(tt_text_t *text, int index, char c);
-extern void           tt_text_set_x(tt_text_t *text, GLfloat x);
-extern void           tt_text_set_y(tt_text_t *text, GLfloat y);
-extern void           tt_text_render(tt_text_t *text, tt_glyph_t *glyph);
-extern void           tt_text_free(tt_text_t *text);
+extern int tt_text_resize(tt_text_t *text);
+extern int tt_text_append(tt_text_t *text, char c);
+extern int tt_text_write(tt_text_t *text, const char *data);
+extern int tt_text_clear(tt_text_t *text);
+extern GLfloat tt_text_get_height(tt_text_t *text, tt_glyph_t *glyph);
+extern GLfloat tt_text_get_width(tt_text_t *text, tt_glyph_t *glyph);
+extern GLfloat tt_text_get_x(tt_text_t *text);
+extern GLfloat tt_text_get_y(tt_text_t *text);
+extern size_t tt_text_get_length(tt_text_t *text);
+extern char tt_text_get_charat(tt_text_t *text, int index);
+extern void tt_text_set_charat(tt_text_t *text, int index, char c);
+extern void tt_text_set_x(tt_text_t *text, GLfloat x);
+extern void tt_text_set_y(tt_text_t *text, GLfloat y);
+extern void tt_text_render(tt_text_t *text, tt_glyph_t *glyph);
+extern void tt_text_free(tt_text_t *text);
+
+/* timer */
+extern void tt_timer_start();
+extern void tt_timer_reset();
+extern float tt_timer_get_time();
 
 #endif // TT_H_

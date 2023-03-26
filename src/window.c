@@ -4,6 +4,7 @@ static SDL_Window *tt_window = NULL;
 static SDL_GLContext *tt_context = NULL;
 static SDL_Event tt_event = {0};
 static GLboolean tt_running = GL_FALSE;
+static int tt_window_w, tt_window_h;
 
 float tt_model[16], tt_projection[16], tt_view[16];
 
@@ -49,11 +50,33 @@ TT_WINDOW_ENUM tt_window_init(const char *name, GLuint x, GLuint y,
         tt_matrix_identity(tt_view);
         tt_matrix_orthographic(tt_projection, 0.0, w, h, 0.0, 10.0, -10.0);
 
+        glViewport(0.0, 0.0, w, h);
+        glEnable(GL_TEXTURE_2D);
         glClearColor(0.0, 0.0, 0.0, 1.0);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         SDL_SetWindowAlwaysOnTop(tt_window, SDL_TRUE);
         tt_running = GL_TRUE;
+
+        tt_window_get_size(&tt_window_w, &tt_window_h);
         return TT_WINDOW_NO_ERROR;
+}
+
+int tt_window_get_width(void)
+{
+        return tt_window_w;
+}
+
+int tt_window_get_height(void)
+{
+        return tt_window_h;
+}
+
+void tt_window_get_size(int *w, int *h)
+{
+        SDL_GetWindowSize(tt_window, w, h);
 }
 
 GLboolean tt_window_is_running(void)

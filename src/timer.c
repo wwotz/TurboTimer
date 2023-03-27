@@ -16,6 +16,7 @@ void tt_timer_reset()
 float tt_timer_get_time()
 {
         float time;
+        gettimeofday(&tt_curr_time, NULL);
         time = (tt_curr_time.tv_sec - tt_start_time.tv_sec)
                 + (tt_curr_time.tv_usec - tt_start_time.tv_usec)/1000000.0;
         return time;

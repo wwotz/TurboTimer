@@ -94,6 +94,21 @@ int tt_window_event_type(void)
         return tt_event.type;
 }
 
+float tt_window_mouse_x(void)
+{
+        return (float) tt_event.motion.x;
+}
+
+float tt_window_mouse_y(void)
+{
+        return (float) tt_event.motion.y;
+}
+
+int tt_window_event_button(void)
+{
+        return tt_event.button.button;
+}
+
 void tt_window_events(void)
 {
         switch (tt_window_event_type()) {

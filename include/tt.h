@@ -113,6 +113,9 @@ extern GLuint tt_window_init(const char *name, GLuint x, GLuint y,
 extern GLboolean tt_window_is_running(void);
 extern int tt_window_poll_event(void);
 extern int tt_window_event_type(void);
+extern float tt_window_mouse_x(void);
+extern float tt_window_mouse_y(void);
+extern int tt_window_event_button(void);
 extern void tt_window_events(void);
 extern void tt_window_clear_buffers(GLbitfield buffers);
 extern void tt_window_clear_colour(GLuint colour);
@@ -216,6 +219,7 @@ extern void tt_rect_set_x(tt_rect_t *rect, GLfloat x);
 extern void tt_rect_set_y(tt_rect_t *rect, GLfloat y);
 extern void tt_rect_set_width(tt_rect_t *rect, GLfloat w);
 extern void tt_rect_set_height(tt_rect_t *rect, GLfloat h);
+extern void tt_rect_set_colour(tt_rect_t *rect, GLuint colour);
 extern GLfloat tt_rect_get_x(tt_rect_t *rect);
 extern GLfloat tt_rect_get_y(tt_rect_t *rect);
 extern GLfloat tt_rect_get_width(tt_rect_t *rect);
@@ -303,5 +307,38 @@ extern void tt_text_free(tt_text_t *text);
 extern void tt_timer_start();
 extern void tt_timer_reset();
 extern float tt_timer_get_time();
+
+/* button */
+typedef struct tt_button_t {
+        tt_rect_t btn;
+        tt_rect_t icon;
+} tt_button_t;
+
+typedef enum TT_BUTTON_ENUM {
+        TT_BUTTON_NO_ERROR = 0,
+        TT_BUTTON_MEMORY_ERROR,
+        TT_BUTTON_NULL_ERROR,
+} TT_BUTTON_ENUM;
+
+
+extern tt_button_t *tt_button_create(GLfloat x, GLfloat y, GLfloat btn_w, GLfloat btn_h,
+                                     GLfloat icon_w, GLfloat icon_h,
+                                     GLuint btn_program, GLuint icon_program,
+                                     GLuint icon_texture, GLuint btn_colour, GLuint icon_colour);
+extern int tt_button_init(tt_button_t *button, GLfloat x, GLfloat y, GLfloat btn_w, GLfloat btn_h,
+                          GLfloat icon_w, GLfloat icon_h,
+                          GLuint btn_program, GLuint icon_program,
+                          GLuint icon_texture, GLuint btn_colour, GLuint icon_colour);
+extern void tt_button_set_x(tt_button_t *button, GLfloat x);
+extern void tt_button_set_y(tt_button_t *button, GLfloat y);
+extern void tt_button_set_width(tt_button_t *button, GLfloat w);
+extern void tt_button_set_height(tt_button_t *button, GLfloat h);
+extern GLfloat tt_button_get_x(tt_button_t *button);
+extern GLfloat tt_button_get_y(tt_button_t *button);
+extern GLfloat tt_button_get_width(tt_button_t *button);
+extern GLfloat tt_button_get_height(tt_button_t *button);
+extern void tt_button_events(tt_button_t *button, void (*func)(void));
+extern void tt_button_render(tt_button_t *button);
+extern void tt_button_free(tt_button_t *button);
 
 #endif // TT_H_

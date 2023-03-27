@@ -1,5 +1,56 @@
 #include "../include/tt.h"
 
+static char *time_to_str(float time, char *buf, size_t buf_len)
+{
+        int itime = (int) time;
+        buf[2] = buf[5] = ':';
+        for (int i = 2; i >= 0; i--) {
+                int val = itime % 60;
+                buf[i*3]     = (val / 10) + '0';
+                buf[i*3 + 1] = (val % 10) + '0';
+                itime /= 60;
+        }
+        buf[8] = '\0';
+        return buf;
+}
+
+static float time = 0.0, prev_time = 0.0;
+static int get_time = 0;
+
+static void play_func(void)
+{
+        if (get_time)
+                return;
+        tt_timer_start();
+        get_time = 1;
+        prev_time += time;
+        time = 0.0;
+}
+
+static void stop_func(void)
+{
+        if (get_time) {
+                tt_timer_reset();
+                get_time = 0;
+                prev_time += time;
+                time = 0.0;
+        }
+}
+
+static void replay_func(void)
+{
+        tt_timer_reset();
+        time = 0.0;
+        prev_time = 0.0;
+}
+
+static float get_timef(void)
+{
+        if (get_time)
+                time = tt_timer_get_time();
+        return time + prev_time;
+}
+
 int main(int argc, char **argv)
 {
         tt_window_init("TurboTimer", TT_WINDOW_X, TT_WINDOW_Y,
@@ -85,62 +136,48 @@ int main(int argc, char **argv)
                 exit(EXIT_FAILURE);
         }
 
-        tt_rect_t border_rect;
-        tt_rect_init(&border_rect, 0.0, 0.0, 64.0, 64.0,
-                     rect_program, 0, 0xaaaaaaff);
+        tt_button_t play_button, stop_button, replay_button;
+        tt_button_init(&play_button, (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0, 64.0, 64.0,
+                       rect_program, icon_program, play_icon, 0xffffffff, 0x00ff00ff);
         if (tt_debug_had_error()) {
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
                 exit(EXIT_FAILURE);
         }
 
-        tt_rect_t play_rect;
-        tt_rect_init(&play_rect, (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
-                            icon_program, play_icon, 0x00ff00ff);
+        tt_button_init(&stop_button, (tt_window_get_width()-196.0)/2.0 + 64.0, tt_window_get_height()-64.0, 64.0, 64.0, 64.0, 64.0,
+                       rect_program, icon_program, stop_icon, 0xffffffff, 0xff0000ff);
         if (tt_debug_had_error()) {
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
                 exit(EXIT_FAILURE);
         }
 
-        tt_rect_t stop_rect;
-        tt_rect_init(&stop_rect, 64.0 + (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
-                     icon_program, stop_icon, 0xff0000ff);
-        if (tt_debug_had_error()) {
-
-                fprintf(stderr, "%s\n", tt_debug_stack_pop());
-                exit(EXIT_FAILURE);
-        }
-
-        tt_rect_t replay_rect;
-        tt_rect_init(&replay_rect, 128.0 + (tt_window_get_width()-196.0)/2.0, tt_window_get_height()-64.0, 64.0, 64.0,
-                     icon_program, replay_icon, 0x000000ff);
+        tt_button_init(&replay_button, (tt_window_get_width()-196.0)/2.0 + 128.0, tt_window_get_height()-64.0, 64.0, 64.0, 64.0, 64.0,
+                       rect_program, icon_program, replay_icon, 0xffffffff, 0x000000ff);
         if (tt_debug_had_error()) {
                 fprintf(stderr, "%s\n", tt_debug_stack_pop());
                 exit(EXIT_FAILURE);
         }
 
+        const size_t timestr_len = 9;
+        char timestr[9] = {0};
+
+        tt_timer_start();
         while (tt_window_is_running()) {
                 while (tt_window_poll_event()) {
                         tt_window_events();
-                        switch (tt_window_event_type()) {
-                                case SDL_MOUSEMOTION:
-                        }
+                        tt_button_events(&play_button, play_func);
+                        tt_button_events(&stop_button, stop_func);
+                        tt_button_events(&replay_button, replay_func);
                 }
                 tt_window_clear_buffers(GL_COLOR_BUFFER_BIT);
+                time_to_str(get_timef(), timestr, timestr_len);
+                tt_text_write(&text, timestr);
                 tt_text_render(&text, &text_glyph);
                 tt_text_set_x(&text, (tt_window_get_width()-tt_text_get_width(&text, &text_glyph))/2.0);
                 tt_text_set_y(&text, 10.0);
-                tt_rect_set_x(&border_rect, tt_rect_get_x(&play_rect));
-                tt_rect_set_y(&border_rect, tt_rect_get_y(&play_rect));
-                tt_rect_render(&border_rect);
-                tt_rect_render(&play_rect);
-                tt_rect_set_x(&border_rect, tt_rect_get_x(&stop_rect));
-                tt_rect_set_y(&border_rect, tt_rect_get_y(&stop_rect));
-                tt_rect_render(&border_rect);
-                tt_rect_render(&stop_rect);
-                tt_rect_set_x(&border_rect, tt_rect_get_x(&replay_rect));
-                tt_rect_set_y(&border_rect, tt_rect_get_y(&replay_rect));
-                tt_rect_render(&border_rect);
-                tt_rect_render(&replay_rect);
+                tt_button_render(&play_button);
+                tt_button_render(&stop_button);
+                tt_button_render(&replay_button);
                 tt_window_swap();
         }
 

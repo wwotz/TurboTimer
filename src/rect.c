@@ -118,6 +118,12 @@ void tt_rect_set_height(tt_rect_t *rect, GLfloat h)
                 rect->h = h;
 }
 
+void tt_rect_set_colour(tt_rect_t *rect, GLuint colour)
+{
+        if (rect)
+                rect->colour = colour;
+}
+
 GLfloat tt_rect_get_x(tt_rect_t *rect)
 {
         if (rect)

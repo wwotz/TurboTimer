@@ -205,8 +205,7 @@ main(int argc, char **argv)
 	ll_matrix_mode(LL_MATRIX_PROJECTION);
 	glUniformMatrix4fv(glGetUniformLocation(text_shader, "projection"), 1,
 			   GL_FALSE, ll_matrix_get_copy().data);
-	glUniform4f(glGetUniformLocation(text_shader, "colour"),
-		    1.0, 1.0, 1.0, 1.0);
+	
 
 	glBindTexture(GL_TEXTURE_2D, number_font_big->textures[0]);
 
@@ -224,7 +223,17 @@ main(int argc, char **argv)
 	running = 1;
 
 	Uint32 start_time = 0, prev_time = 0, curr_time = 0;
-	int get_time = 0;
+	Uint32 prev_seconds = 0;
+	int get_time = 0, animate = 0, animate_frame = 0;
+
+	#define ANIMATE_FRAMES 1001
+	vec2_t animate_frames[ANIMATE_FRAMES];
+	for (size_t i = 0; i < ANIMATE_FRAMES; i++) {
+		float x = 200;
+		float y = 200 + 20.0*sin((M_PI/(float) (ANIMATE_FRAMES - 1) * i));
+		animate_frames[i] = ll_vec2_create2f( x, y );
+	}
+	
 	while (running) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
@@ -252,16 +261,35 @@ main(int argc, char **argv)
 		glClear(GL_COLOR_BUFFER_BIT);
 		ll_matrix_mode(LL_MATRIX_MODEL);
 
+		glUniform4f(glGetUniformLocation(text_shader, "colour"),
+		    1.0, 1.0, 1.0, 1.0);
+
 		ivec4_t elapsed = stopwatch_elapsed();
+		if (elapsed.z != prev_seconds) {
+			prev_seconds = elapsed.z;
+			animate = 1;
+		}
+		
 		snprintf(time_format, TIME_FORMAT_LENGTH,
 			 "%.2d:%.2d:%.2d.%.3d",
 			 elapsed.x, elapsed.y,
 			 elapsed.z, elapsed.w);
 
+		vec2_t pen;
+		if (animate) {
+			glUniform4f(glGetUniformLocation(text_shader, "colour"),
+				    0.0, 1.0, 0.0, 1.0);
+			if (animate_frame == ANIMATE_FRAMES - 1) {
+				animate = 0;
+				animate_frame = 0;
+			}
+			pen = animate_frames[animate_frame++];
+		} else {
+			pen = ll_vec2_create2f( 200, 200 );
+		}
+		
 		char c;
-		vec2_t pen = ll_vec2_create2f( 200, 200 );
 		ftgl_font_t *sample_font = number_font_big;
-		int width = 0, height = 0;
 		for (size_t i = 0; (c = time_format[i]) != '\0'; i++) {
 			ftgl_glyph_t *glyph;
 			if (time_format[i] == '.') {
@@ -276,11 +304,8 @@ main(int argc, char **argv)
 			ll_matrix_identity();
 			ll_matrix_scale3f(glyph->w,
 					  glyph->h, 1.0);
-			width += glyph->w;
-			if (glyph->h > height)
-				height = glyph->h;
-			ll_matrix_translate3f((int) pen.x + glyph->offset_x,
-					      (int) pen.y - glyph->offset_y,
+			ll_matrix_translate3f((int) (pen.x + glyph->offset_x),
+					      (int) (pen.y - glyph->offset_y),
 					      0.0);
 			clip4f(TEX_COORD_MAP(glyph->x, glyph->y,
 					     glyph->w, glyph->h));

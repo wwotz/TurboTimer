@@ -10,6 +10,10 @@
 #define FTGL_IMPLEMENTATION
 #include "font.h"
 
+#define FONT_NAME "Alata-Regular.ttf"
+
+#define FPS 60.0
+
 #define WINDOW_NAME "TurboTimer"
 #define WINDOW_W 800
 #define WINDOW_H 400
@@ -112,9 +116,9 @@ main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if (ftgl_font_bind(number_font_big, "Alata-Regular.ttf")
+	if (ftgl_font_bind(number_font_big, FONT_NAME)
 	    != FTGL_NO_ERROR) {
-		fprintf(stderr, "Failed to bind Alata-Regular.ttf!\n");
+		fprintf(stderr, "Failed to bind: '%s'\n", FONT_NAME);
 		exit(EXIT_FAILURE);
 	}
 	
@@ -123,9 +127,9 @@ main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	if (ftgl_font_bind(number_font_little, "Alata-Regular.ttf")
+	if (ftgl_font_bind(number_font_little, FONT_NAME)
 	    != FTGL_NO_ERROR) {
-		fprintf(stderr, "Failed to bind Alata-Regular.ttf!\n");
+		fprintf(stderr, "Failed to bind: '%s'\n" FONT_NAME);
 		exit(EXIT_FAILURE);
 	}
 
@@ -222,18 +226,19 @@ main(int argc, char **argv)
 
 	running = 1;
 
-	Uint32 start_time = 0, prev_time = 0, curr_time = 0;
 	Uint32 prev_seconds = 0;
 	int get_time = 0, animate = 0, animate_frame = 0;
 
-	#define ANIMATE_FRAMES 1001
+	#define ANIMATE_FRAMES 11
 	vec2_t animate_frames[ANIMATE_FRAMES];
 	for (size_t i = 0; i < ANIMATE_FRAMES; i++) {
 		float x = 200;
 		float y = 200 + 20.0*sin((M_PI/(float) (ANIMATE_FRAMES - 1) * i));
 		animate_frames[i] = ll_vec2_create2f( x, y );
 	}
-	
+
+	Uint32 start_time, end_time;
+	float elapsed_time = 0.0, allowed_time = 1.0 / (float) FPS;
 	while (running) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
@@ -255,6 +260,9 @@ main(int argc, char **argv)
 				}
 			}
 		}
+
+		start_time = SDL_GetTicks();
+		
 		
 		glBindTexture(GL_TEXTURE_2D,
 			      number_font_big->textures[0]);
@@ -316,6 +324,13 @@ main(int argc, char **argv)
 		}
 		
 		SDL_GL_SwapWindow(window);
+		end_time = SDL_GetTicks();
+		elapsed_time = (end_time - start_time) / 1000.0;
+		elapsed_time = allowed_time - elapsed_time;
+		if (elapsed_time > 0.0) {
+			Uint32 elapsed_ms = (Uint32) (elapsed_time*1000.0);
+			SDL_Delay(elapsed_ms);
+		}
 	}
 
 	SDL_DestroyWindow(window);
